@@ -12,6 +12,8 @@
         android:layout_width="390dp"
         android:layout_height="200dp"
         android:layout_marginTop="16dip"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
         android:padding="8dip"
         android:text="Hello World!"
         app:layout_constraintEnd_toEndOf="parent"
