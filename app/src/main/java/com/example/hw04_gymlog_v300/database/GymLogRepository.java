@@ -3,6 +3,8 @@ package com.example.hw04_gymlog_v300.database;
 import android.app.Application;
 import android.util.Log;
 
+import androidx.lifecycle.LiveData;
+
 import com.example.hw04_gymlog_v300.database.entities.GymLog;
 import com.example.hw04_gymlog_v300.MainActivity;
 import com.example.hw04_gymlog_v300.database.entities.User;
@@ -19,15 +21,15 @@ public class GymLogRepository {
 
     private static GymLogRepository repository;
 
-    private GymLogRepository(Application application){
+    private GymLogRepository(Application application) {
         GymLogDatabase db = GymLogDatabase.getDatabase(application);
         this.gymLogDAO = db.gymLogDAO();
         this.userDAO = db.userDAO();
         this.allLogs = (ArrayList<GymLog>) this.gymLogDAO.getAllRecords();
     }
 
-    public static GymLogRepository getRepository(Application application){
-        if (repository != null){
+    public static GymLogRepository getRepository(Application application) {
+        if (repository != null) {
             return repository;
         }
         Future<GymLogRepository> future = GymLogDatabase.databaseWriteExecutor.submit(
@@ -38,15 +40,15 @@ public class GymLogRepository {
                     }
                 }
         );
-        try{
+        try {
             return future.get();
-        } catch (InterruptedException | ExecutionException e){
+        } catch (InterruptedException | ExecutionException e) {
             Log.d(MainActivity.TAG, "Problem getting GymLogRepository, thread error.:");
         }
         return null;
     }
 
-    public ArrayList<GymLog> getAllLogs(){
+    public ArrayList<GymLog> getAllLogs() {
         Future<ArrayList<GymLog>> future = GymLogDatabase.databaseWriteExecutor.submit(
                 new Callable<ArrayList<GymLog>>() {
                     @Override
@@ -55,42 +57,34 @@ public class GymLogRepository {
                     }
                 }
         );
-        try{
+        try {
             return future.get();
-        } catch (InterruptedException | ExecutionException e){
+        } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
             Log.i(MainActivity.TAG, "Problem when getting all GymLogs in the repository");
         }
         return null;
     }
 
-    public void insertGymLog(GymLog gymLog){
-        GymLogDatabase.databaseWriteExecutor.execute(()->
-                {
-                    gymLogDAO.insert(gymLog);
-                });
+    public void insertGymLog(GymLog gymLog) {
+        GymLogDatabase.databaseWriteExecutor.execute(() ->
+        {
+            gymLogDAO.insert(gymLog);
+        });
     }
 
-    public void insertUser(User... user){
-        GymLogDatabase.databaseWriteExecutor.execute(()->
+    public void insertUser(User... user) {
+        GymLogDatabase.databaseWriteExecutor.execute(() ->
         {
             userDAO.insert(user);
         });
     }
 
-    public User getUserByUserName(String username) {
-        Future<User> future = GymLogDatabase.databaseWriteExecutor.submit(
-                new Callable<User>() {
-                    @Override
-                    public User call() throws Exception {
-                        return userDAO.getUserByUserName(username);
-                    }
-                });
-        try{
-            future.get();
-        } catch (InterruptedException | ExecutionException e){
-            Log.i(MainActivity.TAG, "Problem when getting user by username");
-        }
-        return null;
+    public LiveData<User> getUserByUserName(String username) {
+        return userDAO.getUserByUserName(username);
+    }
+
+    public LiveData<User> getUserByUserId(int userId) {
+        return userDAO.getUserByUserId(userId);
     }
 }
