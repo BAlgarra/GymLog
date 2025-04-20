@@ -101,8 +101,8 @@ public class MainActivity extends AppCompatActivity {
         }
         LiveData<User> userObserver = repository.getUserByUserId(loggedInUserId);
         userObserver.observe(this, user -> {
+            this.user = user;
             if (this.user != null) {
-//                this.user = user;
                 invalidateOptionsMenu();
             } else {
 //                todo: verify if this was an issue
